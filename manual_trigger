@@ -1,0 +1,38 @@
+name: Acceptance_Tests_manual_dispatch
+
+on: 
+  workflow_dispatch:
+    inputs:
+      Environment:
+        description: 'Environment to run tests on'
+        type: choice
+        required: true
+        default: 'dev'
+        options:
+          - prd
+          - ppd
+          - stage
+          - uat
+          - dev
+          - dev_azure
+          
+jobs:
+
+  restore_dev:
+    if: ${{ github.event.inputs.Environment == 'dev' }}
+    runs-on: ubuntu-latest
+    steps:
+      - id: dev-test
+        run: |
+          echo ${{ github.event.inputs.Environment }}
+          echo "Pipeline done"
+        shell: bash
+
+  restore_prod:
+    if: ${{ github.event.inputs.Environment == 'prd' && github.event_name == 'workflow_dispatch' }}
+    runs-on: ubuntu-latest
+    steps:
+      - id: prod-test
+        run: |
+          echo ${{ github.event.inputs.Environment }}
+        shell: bash
