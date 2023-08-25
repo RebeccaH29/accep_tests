@@ -1,0 +1,43 @@
+name: Acceptance_Tests_manual_dispatch
+
+on: 
+  workflow_dispatch:
+    inputs:
+      Environment:
+        description: 'Environment to run tests on'
+        type: choice
+        required: true
+        default: 'dev'
+        options:
+          - prd
+          - ppd
+          - stage
+          - uat
+          - dev
+          - dev_azure
+          
+jobs:
+
+  restore_dev:
+    if: ${{ github.event.inputs.Environment == 'dev' }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: dev-test
+        run: |
+          echo ${{ github.event.inputs.Environment }}
+          echo "Pipeline done"
+        shell: bash
+          env:
+            SCRIPTS_REPO 'https://{"${GITLAB_SHARED_PIPELINES_USER}":"${GITLAB_SHARED_PIPELINES_TOKEN}"'
+          run:
+            apk update && apk add curl jq git | export SCRIPTS_DIR=$(mktemp -d) | git -c http.sslVerify=false clone -q --depth 1 "$SCRIPTS_REPO" "$SCRIPTS_DIR"  
+                    
+
+  restore_prod:
+    if: ${{ github.event.inputs.Environment == 'prd' && github.event_name == 'workflow_dispatch' }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: prod-test
+        run: |
+          echo ${{ github.event.inputs.Environment }}
+        shell: bash
